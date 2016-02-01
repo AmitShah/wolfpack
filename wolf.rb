@@ -125,9 +125,7 @@ class Wolf
     end
   end
 
-  def vote(upvote = true)
-    # get upvote link
-    link = "https://www.reddit.com/r/InternetIsBeautiful/comments/412si3/drinkify_is_a_website_that_simply_put_tells_you/"
+  def vote(link, upvote = true)
     # parse subreddit
     parsed_link = reddit_link_parse(link)
     # search through pages for link
@@ -183,6 +181,7 @@ agents = @wolf.load_agents
 @driver = @wolf.connect
 #@wolf.create_user
 @wolf.become_agent(agents.sample)
-@wolf.vote(false)
+link = "https://www.reddit.com/r/InternetIsBeautiful/comments/412si3/drinkify_is_a_website_that_simply_put_tells_you/"
+@wolf.vote(link, true)
 @wolf.lurk
 #@wolf.quit
