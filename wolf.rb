@@ -80,9 +80,9 @@ class Wolf
     @driver.quit
   end
 
-  def zombie_mode
+  def lurk(subreddit = nil)
     # list of subreddits to lurk
-    subreddits = ["entrepreneur/", "startups/", "finance/", "artificial/", "machinelearning/", "robotics/"].shuffle
+    subreddits = subreddit || ["entrepreneur/", "startups/", "finance/", "artificial/", "machinelearning/", "robotics/"].shuffle
     # subreddit pages
     pages = ["top", "new", "rising", "controversial"].shuffle
 
@@ -127,10 +127,47 @@ class Wolf
 
   def upvote
     # get upvote link
-    # get subreddit
+    link = "https://www.reddit.com/r/InternetIsBeautiful/comments/412si3/drinkify_is_a_website_that_simply_put_tells_you/"
+    # parse subreddit
+    parsed_link = reddit_link_parse(link)
     # search through pages for link
-    # once the link is found, click it
+    subreddit_page = "https://www.reddit.com/r/"+parsed_link["subreddit"]
+    puts "Looking for: " + link
+    puts "Crawling on: " + subreddit_page
+    @driver.navigate.to subreddit_page
+
+    uuid = parsed_link["uuid"]
+    while true
+      begin
+        element = @driver.find_element(:xpath, "/html/body//a[contains(@href,'#{uuid}')]")
+      rescue => e
+        element = @driver.find_element(:partial_link_text, 'next')
+        element.click
+        next
+      end
+      # once the link is found, click it
+      element.click
+
+      wait = Selenium::WebDriver::Wait.new(:timeout => 20)
+      wait.until { @driver.find_element(:class => "usertext-edit") }
+
+      @driver.find_element(:css, '.up').click
+      break
+    end
+  end
+
+  def endorse
     # go through and upvote all the comments
+  end
+
+  def denounce
+
+  end
+
+  def reddit_link_parse(link)
+    link = link.split("/")
+    #["https:", "", "www.reddit.com", "r", "bigdata", "comments", "43kwgf", "spotify_big_data_wouter_de_bie_big_data_architect"]
+    return {"domain" => link[2], "subreddit" => link[4], "uuid" => link[6], "slug" => link[7] }
   end
 
   def downvote
@@ -145,5 +182,6 @@ agents = @wolf.load_agents
 @driver = @wolf.connect
 #@wolf.create_user
 @wolf.become_agent(agents.sample)
-@wolf.zombie_mode
+@wolf.upvote
+@wolf.lurk
 #@wolf.quit
