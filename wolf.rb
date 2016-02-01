@@ -84,7 +84,7 @@ class Wolf
     # list of subreddits to lurk
     subreddits = subreddit || ["entrepreneur/", "startups/", "finance/", "artificial/", "machinelearning/", "robotics/"].shuffle
     # subreddit pages
-    pages = ["top", "new", "rising", "controversial"].shuffle
+    pages = ["top/", "new/", "rising/", "controversial/"].shuffle
 
     time = ["hour", "week", "month", "year", "all"].shuffle
 
@@ -92,7 +92,7 @@ class Wolf
 
     subreddits.each do |subreddit|
       pages.each do |page|
-        main_page = url + subreddit + page
+        main_page = url + subreddit + page + "?t=" + time[0]
         puts "Lurking on #{main_page}"
 
         @driver.navigate.to main_page
@@ -125,7 +125,7 @@ class Wolf
     end
   end
 
-  def upvote
+  def vote(upvote = true)
     # get upvote link
     link = "https://www.reddit.com/r/InternetIsBeautiful/comments/412si3/drinkify_is_a_website_that_simply_put_tells_you/"
     # parse subreddit
@@ -137,6 +137,7 @@ class Wolf
     @driver.navigate.to subreddit_page
 
     uuid = parsed_link["uuid"]
+
     while true
       begin
         element = @driver.find_element(:xpath, "/html/body//a[contains(@href,'#{uuid}')]")
@@ -150,8 +151,13 @@ class Wolf
 
       wait = Selenium::WebDriver::Wait.new(:timeout => 20)
       wait.until { @driver.find_element(:class => "usertext-edit") }
-
-      @driver.find_element(:css, '.up').click
+      if upvote == true
+        @driver.find_element(:css, '.up').click
+        puts "UPVOTED"
+      else
+        @driver.find_element(:css, '.down').click
+        puts "DOWNVOTED"
+      end
       break
     end
   end
@@ -170,11 +176,6 @@ class Wolf
     return {"domain" => link[2], "subreddit" => link[4], "uuid" => link[6], "slug" => link[7] }
   end
 
-  def downvote
-    # find account
-    # downvote
-  end
-
 end
 
 @wolf = Wolf.new
@@ -182,6 +183,6 @@ agents = @wolf.load_agents
 @driver = @wolf.connect
 #@wolf.create_user
 @wolf.become_agent(agents.sample)
-@wolf.upvote
+@wolf.vote(false)
 @wolf.lurk
 #@wolf.quit
