@@ -1,4 +1,4 @@
-# wolfpack - Distributed agents
+# Wolfpack - Distributed agents
 
 <p align="center">
   <img src="/wolfpack.png?raw=true" alt="Wolfpack Logo">
