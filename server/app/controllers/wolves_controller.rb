@@ -36,6 +36,13 @@ class WolvesController < ApplicationController
   def edit
   end
 
+  def show
+    @wolf = Wolf.find(params[:id])
+    client = Aws::EC2::Client.new(region: 'us-west-2')
+    resource = Aws::EC2::Resource.new(client: client)
+    @instance = resource.instance(@wolf.instance_id)
+  end
+
   def destroy
     @wolf = Wolf.find(params[:id])
     client = Aws::EC2::Client.new(region: 'us-west-2')

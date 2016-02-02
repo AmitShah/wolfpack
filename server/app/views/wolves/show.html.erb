@@ -1,0 +1,25 @@
+<table>
+  <tr>
+    <td>Status</td>
+    <td>ID</td>
+    <td>Key</td>
+    <td>IP</td>
+    <td>Current Agent</td>
+    <td>Last lurk</td>
+  </tr>
+  <tr>
+    <td>o</td>
+    <td><%=@wolf.id%></td>
+    <td><%=link_to @wolf.key, wolf_path(@wolf) %></td>
+    <td><%=@wolf.ip_address%></td>
+    <td><%=@wolf.instance_id%></td>
+    <td><%#=wolf.last_lurk%></td>
+    <td><%#=wolf.current_agent %></td>
+    <td>
+      <%=link_to wolf_path(@wolf), method: :delete, class: ["btn", "btn-alert"] do %>
+        Delete
+      <% end %>
+    </td>
+  </tr>
+</table>
+

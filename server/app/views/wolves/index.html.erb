@@ -15,7 +15,7 @@
     <tr>
       <td>o</td>
       <td><%=wolf.id%></td>
-      <td><%=wolf.key%></td>
+      <td><%=link_to wolf.key, wolf_path(wolf) %></td>
       <td><%=wolf.ip_address%></td>
       <td><%=wolf.instance_id%></td>
       <td><%#=wolf.last_lurk%></td>
