@@ -1,6 +1,7 @@
 # wolfpack - Distributed agents
 
 <p align="center">
-![Wolfpack Logo](/wolfpack.png?raw=true "Wolfpack Logo")
+  <img src="/wolfpack.png?raw=true" alt="Wolfpack Logo">
 </p>
+
 
