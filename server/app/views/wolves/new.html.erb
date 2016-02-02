@@ -1,0 +1,9 @@
+<div class="col-xs-12">
+  <%=form_for @wolf do |f| %>
+    <%=label :wolves, :wolves_count %><br/>
+    <%=text_field :wolves, :wolves_count %>
+    <br/>
+    <br/>
+    <%=f.submit "build wolves", :class => ["btn", "btn-primary"]%>
+  <% end %>
+</div>

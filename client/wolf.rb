@@ -1,12 +1,54 @@
 require 'selenium-webdriver'
 require 'JSON'
 require 'SecureRandom'
+require "net/http"
+require "uri"
+# move reddit concerns here
+# require "lib/reddit"
 
 class Wolf
   def initialize
-    puts "Woof woof."
     @driver = nil
     @agents_file = './wolves.txt'
+    @pid_file = '/tmp/wolf.pid'
+    instance_check
+    health_check
+    check_in
+  end
+
+  def instance_check
+    if File.exist?(@pid_file)
+      puts "Previuos pid file found. Exiting"
+      exit
+    else
+      f = File.new(@pid_file, "w+")
+      f.write(Process.pid)
+    end
+  end
+
+  def health_check
+    puts "Woof woof."
+    unless ENV.has_key?("WOLF_KEY")
+      uri = URI.parse(ENV["DEN_ADDR"]+'/agents/wolf_key')
+      response = NET::HTTP.get(uri)
+      raise response.inspect
+    end
+    # check for environment variables
+    # keys to check for
+    #vars = ["DEN_ADDR", "WOLF_KEY"]
+    #vars.each do |var|
+    #  unless ENV.has_key?(var.to_s)
+    #    puts "Missing #{var}. Please check environment configs"
+    #    exit
+    #  end
+    #end
+  end
+
+  def check_in
+    # send an update of health
+    # last_lurk
+    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/check_in')
+    response = Net::HTTP.post_form(uri, {"WOLF_KEY" => ENV["WOLF_KEY"], "LAST_LURK" => Time.now})
   end
 
   def connect
@@ -38,7 +80,7 @@ class Wolf
     agent[:username] = username
     agent[:cookies]  = @driver.manage.all_cookies
 
-    self.write_agent(agent)
+    self.store_agent(agent)
   end
 
   def load_agents
@@ -69,9 +111,22 @@ class Wolf
       end
     end
     @driver.navigate.to "https://www.reddit.com/login"
+    agent_file = "/tmp/wolf.agent"
+    if File.exist?(agent_file)
+      puts "Previous agent file found. Exiting"
+      exit
+    else
+      f = File.new(agent_file, "w+")
+      f.write(agent["id"])
+    end
+
   end
 
-  def write_agent(agent)
+  def store_agent(agent)
+
+#    uri = URI.parse(ENV["DEN_ADDR"]+'/store_agent')
+#    response = Net::HTTP.post_form(uri, {"WOLF_KEY" => ENV["WOLF_KEY"], "USERNAME" => username, "COOKIES" => cookies})
+
     f = File.new(@agents_file, "a+")
     f.write(agent.to_json+"\n")
   end
@@ -173,15 +228,23 @@ class Wolf
     #["https:", "", "www.reddit.com", "r", "bigdata", "comments", "43kwgf", "spotify_big_data_wouter_de_bie_big_data_architect"]
     return {"domain" => link[2], "subreddit" => link[4], "uuid" => link[6], "slug" => link[7] }
   end
-
 end
 
 @wolf = Wolf.new
-agents = @wolf.load_agents
-@driver = @wolf.connect
+#agents = @wolf.load_agents
+#@driver = @wolf.connect
 #@wolf.create_user
-@wolf.become_agent(agents.sample)
-link = "https://www.reddit.com/r/InternetIsBeautiful/comments/412si3/drinkify_is_a_website_that_simply_put_tells_you/"
-@wolf.vote(link, true)
-@wolf.lurk
+#@wolf.become_agent(agents.sample)
+#link = "https://www.reddit.com/r/InternetIsBeautiful/comments/412si3/drinkify_is_a_website_that_simply_put_tells_you/"
+#@wolf.vote(link, true)
+#@wolf.lurk
 #@wolf.quit
+
+def at_exit
+  pid_file = "/tmp/wolf.pid"
+  current_pid = Process.pid
+  running_pid = File.read(pid_file)
+  if current_pid == running_pid
+    File.destroy(pid_file)
+  end
+end

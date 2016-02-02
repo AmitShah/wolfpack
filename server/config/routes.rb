@@ -3,7 +3,26 @@ Rails.application.routes.draw do
   # See how all your routes lay out with "rake routes".
 
   # You can have the root of your site routed with "root"
-  # root 'welcome#index'
+  root 'wolves#index'
+
+  post '/agents/check_in/', to: "agents#check_in"
+
+  post '/agents/store_agent', to: "agents#store_agent"
+  get  '/agents/get_agent', to: "agents#get_agent"
+
+  get  '/agents/get_task', to: "agents#get_task"
+
+  # wolf key
+  get  '/wolf/get_key', to: "wolf#get_key"
+
+  # create aws instance
+  post '/wolf/aws', to: "wolf#aws"
+
+  post '/wolf/task', to: "wolf#task"
+
+  resources :wolves do
+    
+  end
 
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
