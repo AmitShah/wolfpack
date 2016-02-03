@@ -18,8 +18,15 @@ class Wolf
 
   def instance_check
     if File.exist?(@pid_file)
-      puts "Previuos pid file found. Exiting"
-      exit
+      last_known_pid = File.read(@pid_file)
+      begin
+        Process.getpgid( last_known_pid.to_i )
+        puts "Previous pid file found and process running."
+        exit
+      rescue => e
+        puts "Cleaning up previous pid file"
+        File.delete(@pid_file)
+      end
     else
       f = File.new(@pid_file, "w+")
       f.write(Process.pid)
@@ -28,13 +35,18 @@ class Wolf
 
   def health_check
     puts "Woof woof."
+    puts "DEN ADDR: #{ENV["DEN_ADDR"]}"
     unless ENV.has_key?("WOLF_KEY")
-      uri = URI.parse(ENV["DEN_ADDR"]+'/agents/wolf_key')
-      response = NET::HTTP.get(uri)
-      raise response.inspect
+      uri = URI.parse(ENV["DEN_ADDR"]+'/wolf/get_key')
+      response = Net::HTTP.get(uri)
+      wolf_res = JSON.parse(response)
+      if wolf_res.has_key?("key")
+        ENV['WOLF_KEY'] = wolf_res["key"]
+      else
+        puts "No more wolfies jumping on the bed."
+      end
+      puts "Got wolf key: #{ENV['WOLF_KEY']}"
     end
-    # check for environment variables
-    # keys to check for
     #vars = ["DEN_ADDR", "WOLF_KEY"]
     #vars.each do |var|
     #  unless ENV.has_key?(var.to_s)
@@ -228,6 +240,20 @@ class Wolf
     #["https:", "", "www.reddit.com", "r", "bigdata", "comments", "43kwgf", "spotify_big_data_wouter_de_bie_big_data_architect"]
     return {"domain" => link[2], "subreddit" => link[4], "uuid" => link[6], "slug" => link[7] }
   end
+
+
+  def at_exit
+    puts "Exiting"
+    pid_file = "/tmp/wolf.pid"
+    current_pid = Process.pid
+    if File.exists?(pid_file)
+      running_pid = File.read(pid_file)
+      if current_pid == running_pid
+        puts "Cleaning up: #{pid_file}"
+        File.destroy(pid_file)
+      end
+    end
+  end
 end
 
 @wolf = Wolf.new
@@ -239,12 +265,3 @@ end
 #@wolf.vote(link, true)
 #@wolf.lurk
 #@wolf.quit
-
-def at_exit
-  pid_file = "/tmp/wolf.pid"
-  current_pid = Process.pid
-  running_pid = File.read(pid_file)
-  if current_pid == running_pid
-    File.destroy(pid_file)
-  end
-end
