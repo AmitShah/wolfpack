@@ -9,8 +9,8 @@ require "uri"
 class Wolf
   def initialize
     @driver = nil
-    @agents_file = './wolves.txt'
     @pid_file = '/tmp/wolf.pid'
+    @agent = nil
     instance_check
     health_check
     check_in
@@ -28,6 +28,7 @@ class Wolf
         File.delete(@pid_file)
       end
     else
+      puts "Writing new pid file: #{@pid_file}"
       f = File.new(@pid_file, "w+")
       f.write(Process.pid)
     end
@@ -35,7 +36,7 @@ class Wolf
 
   def health_check
     puts "Woof woof."
-    puts "DEN ADDR: #{ENV["DEN_ADDR"]}"
+    puts "DEN_ADDR: #{ENV["DEN_ADDR"]}"
     unless ENV.has_key?("WOLF_KEY")
       uri = URI.parse(ENV["DEN_ADDR"]+'/wolf/get_key')
       response = Net::HTTP.get(uri)
@@ -95,14 +96,19 @@ class Wolf
     self.store_agent(agent)
   end
 
-  def load_agents
-    agents = File.read(@agents_file)
-    agents = agents.split("\n")
-    parsed_agents = []
-    agents.each do |agent|
-      parsed_agents.push(JSON.parse(agent))
-    end
-    return parsed_agents
+  def unload_agent(agent)
+    puts "Unloading agent: " + agent["id"].to_s
+    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/'+agent["id"].to_s+'/unload_agent')
+    response = Net::HTTP.get(uri)
+  end
+
+  def load_agent(agent_type)
+    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/get_agent?agent_type='+agent_type)
+    response = Net::HTTP.get(uri)
+    response = JSON.parse(response)
+    agent = response["agent"]
+    puts "Loaded agent: " + agent["id"].to_s
+    return agent
   end
 
   def become_agent(agent)
@@ -241,7 +247,6 @@ class Wolf
     return {"domain" => link[2], "subreddit" => link[4], "uuid" => link[6], "slug" => link[7] }
   end
 
-
   def at_exit
     puts "Exiting"
     pid_file = "/tmp/wolf.pid"
@@ -257,7 +262,8 @@ class Wolf
 end
 
 @wolf = Wolf.new
-#agents = @wolf.load_agents
+agent = @wolf.load_agent("reddit")
+agent = @wolf.unload_agent(agent)
 #@driver = @wolf.connect
 #@wolf.create_user
 #@wolf.become_agent(agents.sample)
