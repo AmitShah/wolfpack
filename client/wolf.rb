@@ -69,7 +69,7 @@ class Wolf
       puts "Task received ****"
       complete_task
     else
-      lurk
+      return false
     end
   end
 
@@ -180,9 +180,8 @@ class Wolf
 
     subreddits.each do |subreddit|
       pages.each do |page|
-        if self.check_in && !@task.blank?
-          complete_task
-        end
+        self.check_in
+
         main_page = url + subreddit + page + "?t=" + time[0]
         puts "Lurking on #{main_page}"
 
