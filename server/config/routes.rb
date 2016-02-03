@@ -14,6 +14,7 @@ Rails.application.routes.draw do
 
   resources :agents do
     get '/make_available', to: "agents#make_available"
+    get '/unload_agent', to: "agents#unload_agent"
   end
 
   # wolf key

@@ -11,7 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160203005612) do
+ActiveRecord::Schema.define(version: 20160203015617) do
+
+  create_table "agent_to_wolves", force: :cascade do |t|
+    t.integer  "wolf_id"
+    t.integer  "agent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "agents", force: :cascade do |t|
     t.string   "username"

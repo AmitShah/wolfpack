@@ -17,22 +17,45 @@ class AgentsController < ApplicationController
     @agent = Agent.find(params[:id])
   end
 
+  # we use available in the agent for now, because of dumb reasons. This should either resolve to a single agent -> wolf, or allow explicit agent<:medium> -> wolf relationships
+
   def get_agent
     @wolf = Wolf.find_by(ip_address: request.remote_ip)
     agent_type = params[:agent_type]
-    @agent = Agent.where(:agent_type => agent_type).where(:available => true).limit(1)
+    @agent = Agent.where(:agent_type => agent_type).where(:available => true)
     if @agent.blank?
       render json: {data: "no more agents."}
     else
+      @agent = @agent.first
       @agent.available = false
       @agent.save
+      AgentToWolf.create(:agent_id => @agent.id, :wolf_id => @wolf.id)
       render json: {agent: @agent}
     end
+  end
+
+  def unload_agent
+    @wolf = Wolf.find_by(ip_address: request.remote_ip)
+    @agent = Agent.find(params[:agent_id])
+    @aw = AgentToWolf.find_by(:agent_id => @agent.id, :wolf_id => @wolf.id)
+    AgentToWolf.destroy(@aw.id)
+    @agent.available = true
+    @agent.save
   end
 
   def make_available
     @agent = Agent.find(params[:agent_id])
     @agent.available = true
+    @aw = AgentToWolf.where(:agent_id => @agent.id)
+    @aw.each do |aw|
+      AgentToWolf.destroy(aw.id)
+    end
+    @agent.save
     redirect_to agents_path
+  end
+
+  def store_agent
+    @agent = Agent.create(username: params[:username], cookie: params[:cookies]
+    render json: @agent
   end
 end
