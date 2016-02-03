@@ -55,7 +55,24 @@ class AgentsController < ApplicationController
   end
 
   def store_agent
-    @agent = Agent.create(username: params[:username], cookie: params[:cookies]
+    @agent = Agent.create(username: params[:username], cookie: params[:cookies], agent_type: params[:agent_type])
     render json: @agent
   end
+
+  def get_ticket
+    begin
+      @ticket = Ticket.where(wolf_id: nil, agent_id: nil).first
+      @agent = Agent.find(params[:agent_id])
+      @wolf = Wolf.find_by(ip_address: request.remote_ip)
+      @ticket.wolf_id = @wolf.id
+      @ticket.agent_id = @agent.id
+      @ticket.started_at = Time.now
+      @ticket.save
+    rescue => e
+      render json: {status: false}
+    end
+    @task = @ticket.task
+    render json: {status: true, data: @task}
+  end
+
 end

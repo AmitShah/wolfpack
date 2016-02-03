@@ -28,6 +28,9 @@ Rails.application.routes.draw do
   resources :wolves do
   end
 
+  resources :tasks do
+  end
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 

@@ -1,0 +1,11 @@
+<%=form_for @task do |f| %>
+  <%=f.label :medium%><br/>
+  <%=f.text_field :medium %></br/>
+  <%=f.label :target%><br/>
+  <%=f.text_field :target %></br/>
+  <%=f.label :action%><br/>
+  <%=f.text_field :action %></br/>
+  <%=f.label :wolf_count%><br/>
+  <%=f.text_field :wolf_count %></br/>
+  <%=f.submit "Create task", :class => ["btn", "btn-primary"] %>
+<% end %>

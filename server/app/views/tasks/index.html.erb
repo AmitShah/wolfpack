@@ -1,0 +1,19 @@
+<%=link_to "Create new task", new_task_path, :class => ["btn", "btn-primary"] %>
+<table>
+  <tr>
+    <td>Medium</td>
+    <td>Target</td>
+    <td>Action</td>
+    <td>Wolf Count</td>
+    <td>Started_at</td>
+  </tr>
+  <% @tasks.each do |task| %>
+    <tr>
+      <td><%=task.medium%></td>
+      <td><%=task.target%></td>
+      <td><%=task.action%></td>
+      <td><%=task.wolf_count%></td>
+      <td><%=task.created_at %></td>
+    </tr>
+  <% end %>
+</table>
