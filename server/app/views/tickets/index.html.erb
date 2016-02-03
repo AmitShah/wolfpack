@@ -15,6 +15,7 @@
       <td><%=ticket.wolf_id%></td>
       <td><%=ticket.started_at%></td>
       <td><%=ticket.finished_at%></td>
+      <td><%=link_to "Delete", ticket_path(ticket.id), :method => :delete, :class => ["btn", "btn-primary"] %></td>
     </tr>
   <% end %>
 </table>

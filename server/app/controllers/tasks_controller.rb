@@ -1,4 +1,5 @@
 class TasksController < ApplicationController
+
   def index
     @tasks = Task.all
   end
@@ -15,5 +16,11 @@ class TasksController < ApplicationController
     (1..params[:task][:wolf_count].to_i).each do |job|
       Ticket.create(:task_id => @task.id)
     end
+    redirect_to tasks_path
+  end
+
+  def destroy
+    Task.destroy(params[:id])
+    redirect_to tasks_path
   end
 end

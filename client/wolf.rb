@@ -18,6 +18,8 @@ class Wolf
       load_agent("reddit")
       sleep(1)
     end
+    start_driver
+    become_agent
     while(true)
       lurk
     end
@@ -66,7 +68,7 @@ class Wolf
 
   def check_in
     puts "Checking in ****"
-    uri = URI.parse(ENV["DEN_ADDR"]+'/wolf/get_ticket')
+    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/'+@agent["id"].to_s+'/get_ticket')
     response = Net::HTTP.get(uri)
     response = JSON.parse(response)
     if response.has_key?("data")
@@ -78,7 +80,13 @@ class Wolf
     end
   end
 
-  def connect
+  def complete_task
+    # medium, target, action, param
+    # reddit, url, vote
+    self.send(@task["action"], @task["target"])
+  end
+
+  def start_driver
     @driver = Selenium::WebDriver.for :firefox
   end
 
@@ -134,14 +142,14 @@ class Wolf
   end
 
   def become_agent
-    unless @agent.blank?
+    if @agent.nil?
       puts "Please load an agent before proceeding."
       return false
     end
     @driver.navigate.to "https://www.reddit.com/login"
     @driver.manage.delete_all_cookies
     puts "Becoming agent: "+@agent["username"]
-    cookies = @agent["cookie"]
+    cookies = JSON.parse(@agent["cookie"])
     cookies.each do |c|
       begin
         if c["expires"] == nil
@@ -155,14 +163,14 @@ class Wolf
       end
     end
     @driver.navigate.to "https://www.reddit.com/login"
-    agent_file = "/tmp/wolf.agent"
-    if File.exist?(agent_file)
-      puts "Previous agent file found. Exiting"
-      exit
-    else
-      f = File.new(agent_file, "w+")
-      f.write(@agent["id"])
-    end
+    #agent_file = "/tmp/wolf.agent"
+    #if File.exist?(agent_file)
+    #  puts "Previous agent file found. Exiting"
+    #  exit
+    #else
+    #  f = File.new(agent_file, "w+")
+    #  f.write(@agent["id"])
+    #end
     return true
   end
 
@@ -175,11 +183,6 @@ class Wolf
     @driver.quit
   end
 
-  def complete_task
-    # medium, target, action, param
-    # reddit, url, vote
-    self.send(action, vote)
-  end
 
   def lurk(subreddit = nil)
     if @agent.nil?
@@ -234,12 +237,12 @@ class Wolf
     end
   end
 
-  def vote(link, upvote = true)
+  def vote(target, upvote = true)
     # parse subreddit
-    parsed_link = reddit_link_parse(link)
+    parsed_link = reddit_link_parse(target)
     # search through pages for link
     subreddit_page = "https://www.reddit.com/r/"+parsed_link["subreddit"]
-    puts "Looking for: " + link
+    puts "Looking for: " + target
     puts "Crawling on: " + subreddit_page
     @driver.navigate.to subreddit_page
 

@@ -7,4 +7,9 @@ class TicketsController < ApplicationController
     @ticket = Ticket.find(params[:id])
   end
 
+  def destroy
+    Ticket.destroy(params[:id])
+    redirect_to tickets_path
+  end
+
 end
