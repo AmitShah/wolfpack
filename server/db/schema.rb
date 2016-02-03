@@ -11,14 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160202033210) do
+ActiveRecord::Schema.define(version: 20160203005612) do
 
   create_table "agents", force: :cascade do |t|
     t.string   "username"
     t.text     "cookie"
     t.string   "agent_type"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.boolean  "available",  default: true
   end
 
   create_table "tasks", force: :cascade do |t|

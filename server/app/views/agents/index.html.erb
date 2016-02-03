@@ -1,0 +1,20 @@
+<%=link_to "Create a new agent", new_agent_path, :class => ["btn", "btn-primary"] %>
+<table>
+  <tr>
+    <td>Medium</td>
+    <td>Account</td>
+    <td>Cookie</td>
+    <td>Last used</td>
+  </tr>
+  <% @agents.each do |agent| %>
+    <tr>
+      <td><%=agent.agent_type%></td>
+      <td><%=agent.username %></td>
+      <td><%=agent.cookie[0..15] %></td>
+      <td><% if agent.available == false %>
+        <%=link_to agent_make_available_path(agent), class: ["btn", "btn-primary"] do %>Make Available<% end %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
+</table>

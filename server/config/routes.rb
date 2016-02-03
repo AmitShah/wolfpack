@@ -12,6 +12,10 @@ Rails.application.routes.draw do
 
   get  '/agents/get_task', to: "agents#get_task"
 
+  resources :agents do
+    get '/make_available', to: "agents#make_available"
+  end
+
   # wolf key
   get  '/wolf/get_key', to: "wolf#get_key"
 
@@ -21,7 +25,6 @@ Rails.application.routes.draw do
   post '/wolf/task', to: "wolf#task"
 
   resources :wolves do
-    
   end
 
   # Example of regular route:
