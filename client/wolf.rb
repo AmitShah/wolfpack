@@ -11,8 +11,10 @@ class Wolf
     @driver = nil
     @pid_file = '/tmp/wolf.pid'
     @agent = nil
+    @task = nil
     instance_check
     health_check
+    load_agent("reddit")
     check_in
   end
 
@@ -58,10 +60,17 @@ class Wolf
   end
 
   def check_in
-    # send an update of health
-    # last_lurk
-    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/check_in')
-    response = Net::HTTP.post_form(uri, {"WOLF_KEY" => ENV["WOLF_KEY"], "LAST_LURK" => Time.now})
+    puts "Checking in ****"
+    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/'+@agent["id"]+'/get_ticket')
+    response = Net::HTTP.get(uri)
+    response = JSON.parse(response)
+    if response.has_key?("data")
+      @task = response["data"]
+      puts "Task received ****"
+      complete_task
+    else
+      lurk
+    end
   end
 
   def connect
@@ -89,33 +98,37 @@ class Wolf
     wait = Selenium::WebDriver::Wait.new(:timeout => 20)
     wait.until { @driver.find_element(:class => "logout") }
 
-    agent = Hash.new
-    agent[:username] = username
-    agent[:cookie]  = @driver.manage.all_cookies
+    @agent = Hash.new
+    @agent[:username] = username
+    @agent[:cookie]  = @driver.manage.all_cookies
 
-    self.store_agent(agent)
+    self.store_agent
   end
 
-  def unload_agent(agent)
-    puts "Unloading agent: " + agent["id"].to_s
-    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/'+agent["id"].to_s+'/unload_agent')
+  def unload_agent
+    puts "Unloading agent: " + @agent["id"].to_s
+    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/'+@agent["id"].to_s+'/unload_agent')
     response = Net::HTTP.get(uri)
   end
 
-  def load_agent(agent_type)
+  def load_agent(agent_type = "reddit")
     uri = URI.parse(ENV["DEN_ADDR"]+'/agents/get_agent?agent_type='+agent_type)
     response = Net::HTTP.get(uri)
     response = JSON.parse(response)
-    agent = response["agent"]
-    puts "Loaded agent: " + agent["id"].to_s
-    return agent
+    @agent = response["agent"]
+    puts "Loaded agent: " + @agent["id"].to_s
+    return true
   end
 
-  def become_agent(agent)
+  def become_agent
+    unless @agent.blank?
+      puts "Please load an agent before proceeding."
+      return false
+    end
     @driver.navigate.to "https://www.reddit.com/login"
     @driver.manage.delete_all_cookies
-    puts "Becoming agent: "+agent["username"]
-    cookies = agent["cookie"]
+    puts "Becoming agent: "+@agent["username"]
+    cookies = @agent["cookie"]
     cookies.each do |c|
       begin
         if c["expires"] == nil
@@ -135,18 +148,24 @@ class Wolf
       exit
     else
       f = File.new(agent_file, "w+")
-      f.write(agent["id"])
+      f.write(@agent["id"])
     end
-
+    return true
   end
 
-  def store_agent(agent)
-    uri = URI.parse(ENV["DEN_ADDR"]+'/store_agent')
-    response = Net::HTTP.post_form(uri, {"agent_type" => "reddit", "wolf_key" => ENV["WOLF_KEY"], "username" => agent["username"], "cookie" => agent["cookie"]})
+  def store_agent
+    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/'+@agent["id"]+'/store_agent')
+    response = Net::HTTP.post_form(uri, {"agent_type" => "reddit", "wolf_key" => ENV["WOLF_KEY"], "username" => @agent["username"], "cookie" => @agent["cookie"]})
   end
 
   def quit
     @driver.quit
+  end
+
+  def complete_task
+    # medium, target, action, param
+    # reddit, url, vote
+    self.send(action, vote)
   end
 
   def lurk(subreddit = nil)
@@ -161,6 +180,9 @@ class Wolf
 
     subreddits.each do |subreddit|
       pages.each do |page|
+        if self.check_in && !@task.blank?
+          complete_task
+        end
         main_page = url + subreddit + page + "?t=" + time[0]
         puts "Lurking on #{main_page}"
 
@@ -258,12 +280,3 @@ class Wolf
 end
 
 @wolf = Wolf.new
-agent = @wolf.load_agent("reddit")
-agent = @wolf.unload_agent(agent)
-#@driver = @wolf.connect
-#@wolf.create_user
-#@wolf.become_agent(agents.sample)
-#link = "https://www.reddit.com/r/InternetIsBeautiful/comments/412si3/drinkify_is_a_website_that_simply_put_tells_you/"
-#@wolf.vote(link, true)
-#@wolf.lurk
-#@wolf.quit
