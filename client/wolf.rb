@@ -14,8 +14,13 @@ class Wolf
     @task = nil
     instance_check
     health_check
-    load_agent("reddit")
-    check_in
+    while @agent.nil?
+      load_agent("reddit")
+      sleep(1)
+    end
+    while(true)
+      lurk
+    end
   end
 
   def instance_check
@@ -61,13 +66,13 @@ class Wolf
 
   def check_in
     puts "Checking in ****"
-    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/'+@agent["id"]+'/get_ticket')
+    uri = URI.parse(ENV["DEN_ADDR"]+'/wolf/get_ticket')
     response = Net::HTTP.get(uri)
     response = JSON.parse(response)
     if response.has_key?("data")
       @task = response["data"]
       puts "Task received ****"
-      complete_task
+      return true
     else
       return false
     end
@@ -115,9 +120,17 @@ class Wolf
     uri = URI.parse(ENV["DEN_ADDR"]+'/agents/get_agent?agent_type='+agent_type)
     response = Net::HTTP.get(uri)
     response = JSON.parse(response)
-    @agent = response["agent"]
-    puts "Loaded agent: " + @agent["id"].to_s
-    return true
+    if response.has_key?("agent")
+      @agent = response["agent"]
+      puts "Loaded agent: " + @agent["id"].to_s
+      if !@ticket.nil?
+        # register ticket
+      end
+      return true
+    else
+      puts "No more agents. Generate more"
+      return false
+    end
   end
 
   def become_agent
@@ -154,7 +167,7 @@ class Wolf
   end
 
   def store_agent
-    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/'+@agent["id"]+'/store_agent')
+    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/'+@agent["id"].to_s+'/store_agent')
     response = Net::HTTP.post_form(uri, {"agent_type" => "reddit", "wolf_key" => ENV["WOLF_KEY"], "username" => @agent["username"], "cookie" => @agent["cookie"]})
   end
 
@@ -169,6 +182,10 @@ class Wolf
   end
 
   def lurk(subreddit = nil)
+    if @agent.nil?
+      puts "Generate agent before lurking."
+      exit
+    end
     # list of subreddits to lurk
     subreddits = subreddit || ["entrepreneur/", "startups/", "finance/", "artificial/", "machinelearning/", "robotics/"].shuffle
     # subreddit pages
@@ -180,8 +197,10 @@ class Wolf
 
     subreddits.each do |subreddit|
       pages.each do |page|
-        self.check_in
-
+        if self.check_in
+          complete_task
+          puts "Resuming Lurking..."
+        end
         main_page = url + subreddit + page + "?t=" + time[0]
         puts "Lurking on #{main_page}"
 

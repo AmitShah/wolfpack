@@ -10,6 +10,7 @@
     <td>IP</td>
     <td>Current Agent</td>
     <td>Last lurk</td>
+    <td>Tickets Open</td>
   </tr>
   <% @wolves.each do |wolf| %>
     <tr>
@@ -18,8 +19,17 @@
       <td><%=link_to wolf.key, wolf_path(wolf) %></td>
       <td><%=wolf.ip_address%></td>
       <td><%=wolf.instance_id%></td>
-      <td><%#=wolf.last_lurk%></td>
-      <td><%#=wolf.current_agent %></td>
+      <td>last_lurk<%#=wolf.last_lurk%></td>
+      <td>
+        <% wolf.agents.each do |a| %>
+          <%=link_to a.id, agent_path(a.id) %><br/>
+        <% end %>
+      </td>
+      <td>
+        <% wolf.tickets.each do |t| %>
+          <%=link_to t.id, ticket_path(t.id) %> <br/>
+        <% end %>
+      </td>
       <td>
         <%=link_to wolf_path(wolf), method: :delete, class: ["btn", "btn-alert"] do %>
           Delete

@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   get  '/agents/get_task', to: "agents#get_task"
 
   resources :agents do
+    get '/get_ticket', to: "agents#get_ticket"
     get '/make_available', to: "agents#make_available"
     get '/unload_agent', to: "agents#unload_agent"
   end

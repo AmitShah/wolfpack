@@ -1,0 +1,20 @@
+<table>
+  <tr>
+    <td>ID</td>
+    <td>Task ID</td>
+    <td>Agent ID</td>
+    <td>Wolf ID</td>
+    <td>Started at</td>
+    <td>Finished at</tD>
+  </tr>
+  <% @tickets.each do |ticket| %>
+    <tr>
+      <td><%=ticket.id%></td>
+      <td><%=ticket.task_id%></td>
+      <td><%=ticket.agent_id%></td>
+      <td><%=ticket.wolf_id%></td>
+      <td><%=ticket.started_at%></td>
+      <td><%=ticket.finished_at%></td>
+    </tr>
+  <% end %>
+</table>

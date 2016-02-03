@@ -60,22 +60,22 @@ class AgentsController < ApplicationController
   end
 
   def get_ticket
-    begin
-      @agent = Agent.find(params[:agent_id])
-      @wolf = Wolf.find_by(ip_address: request.remote_ip)
-      if Ticket.where(wolf_id: @wolf.id, agent_id: @agent.id)
-        raise "Already got a ticket."
-      end
-      @ticket = Ticket.where(wolf_id: nil, agent_id: nil).first
-      @ticket.wolf_id = @wolf.id
-      @ticket.agent_id = @agent.id
-      @ticket.started_at = Time.now
-      @ticket.save
-    rescue => e
-      render json: {status: false}
+    @agent = Agent.find(params[:agent_id])
+    @wolf = Wolf.find_by(ip_address: request.remote_ip)
+    if Ticket.where(wolf_id: @wolf.id, agent_id: @agent.id)
+      raise "Already got a ticket."
     end
-    @task = @ticket.task
-    render json: {status: true, data: @task}
+    @ticket = Ticket.where(wolf_id: nil, agent_id: nil).first
+    @ticket.wolf_id = @wolf.id
+    @ticket.agent_id = @agent.id
+    @ticket.started_at = Time.now
+    @ticket.save
+    if @ticket.blank?
+      render json: {status: false}
+    else
+      @task = @ticket.task
+      render json: {status: true, data: @task}
+    end
   end
 
 end
