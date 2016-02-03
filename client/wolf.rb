@@ -91,7 +91,7 @@ class Wolf
 
     agent = Hash.new
     agent[:username] = username
-    agent[:cookies]  = @driver.manage.all_cookies
+    agent[:cookie]  = @driver.manage.all_cookies
 
     self.store_agent(agent)
   end
@@ -115,7 +115,7 @@ class Wolf
     @driver.navigate.to "https://www.reddit.com/login"
     @driver.manage.delete_all_cookies
     puts "Becoming agent: "+agent["username"]
-    cookies = agent["cookies"]
+    cookies = agent["cookie"]
     cookies.each do |c|
       begin
         if c["expires"] == nil
@@ -141,12 +141,8 @@ class Wolf
   end
 
   def store_agent(agent)
-
-#    uri = URI.parse(ENV["DEN_ADDR"]+'/store_agent')
-#    response = Net::HTTP.post_form(uri, {"WOLF_KEY" => ENV["WOLF_KEY"], "USERNAME" => username, "COOKIES" => cookies})
-
-    f = File.new(@agents_file, "a+")
-    f.write(agent.to_json+"\n")
+    uri = URI.parse(ENV["DEN_ADDR"]+'/store_agent')
+    response = Net::HTTP.post_form(uri, {"agent_type" => "reddit", "wolf_key" => ENV["WOLF_KEY"], "username" => agent["username"], "cookie" => agent["cookie"]})
   end
 
   def quit
@@ -248,7 +244,7 @@ class Wolf
   end
 
   def at_exit
-    puts "Exiting"
+    puts "Adios."
     pid_file = "/tmp/wolf.pid"
     current_pid = Process.pid
     if File.exists?(pid_file)
