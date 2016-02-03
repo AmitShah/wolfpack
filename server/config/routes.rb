@@ -32,6 +32,9 @@ Rails.application.routes.draw do
   resources :tasks do
   end
 
+  resources :tickets do
+  end
+
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 
