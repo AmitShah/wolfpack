@@ -1,3 +1,4 @@
+require 'headless'
 require 'selenium-webdriver'
 require 'json'
 require 'securerandom'
@@ -13,6 +14,7 @@ class Wolf
     @pid_file = '/tmp/wolf.pid'
     @agent = nil
     @task = nil
+    @headless = nil
     instance_check
     while(health_check == false)
       sleep(1)
@@ -94,6 +96,8 @@ class Wolf
   end
 
   def start_driver
+    @headless = Headless.new
+    @headless.start
     @driver = Selenium::WebDriver.for :firefox
   end
 
@@ -138,9 +142,6 @@ class Wolf
     if response.has_key?("agent")
       @agent = response["agent"]
       puts "Loaded agent: " + @agent["id"].to_s
-      if !@ticket.nil?
-        # register ticket
-      end
       return true
     else
       puts "No more agents. Generate more"
@@ -188,6 +189,7 @@ class Wolf
 
   def quit
     @driver.quit
+    @headless.destroy
   end
 
 
