@@ -18,9 +18,9 @@ class Wolf
 
     instance_check
 
-    while(health_check == false)
-      sleep(1)
-    end
+    #while(health_check == false)
+      #sleep(1)
+    #end
 
     while @agent.nil?
       load_agent("reddit")
@@ -29,9 +29,9 @@ class Wolf
 
     start_driver
     become_agent
-    while(true)
-      lurk
-    end
+    #while(true)
+    #  lurk
+    #end
   end
 
   def instance_check
@@ -151,8 +151,12 @@ class Wolf
   end
 
   def load_agent(agent_type = "reddit")
-    uri = URI.parse(ENV["DEN_ADDR"]+'/agents/get_agent?agent_type='+agent_type)
+    uri = ENV["DEN_ADDR"]+'/agents/get_agent?agent_type='+agent_type
+    puts uri
+    uri = URI.parse(uri)
+    puts "Loading agent"
     response = Net::HTTP.get(uri)
+    puts response
     response = JSON.parse(response)
     if response.has_key?("agent")
       @agent = response["agent"]
@@ -324,3 +328,4 @@ class Wolf
 end
 
 @wolf = Wolf.new
+@wolf.make_contact("https://www.reddit.com/message/compose/?to=ctwiz")
