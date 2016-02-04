@@ -15,3 +15,11 @@
  */
 @import "bootstrap-sprockets";
 @import "bootstrap";
+
+table {
+  tr {
+    td {
+      padding: 5px;
+    }
+  }
+}
