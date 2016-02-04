@@ -8,12 +8,15 @@ require "uri"
 
 class Wolf
   def initialize
+    puts "Woof woof."
     @driver = nil
     @pid_file = '/tmp/wolf.pid'
     @agent = nil
     @task = nil
     instance_check
-    health_check
+    while(health_check == false)
+      sleep(1)
+    end
     while @agent.nil?
       load_agent("reddit")
       sleep(1)
@@ -44,7 +47,6 @@ class Wolf
   end
 
   def health_check
-    puts "Woof woof."
     puts "DEN_ADDR: #{ENV["DEN_ADDR"]}"
     unless ENV.has_key?("WOLF_KEY")
       uri = URI.parse(ENV["DEN_ADDR"]+'/wolf/get_key')
@@ -56,6 +58,7 @@ class Wolf
         puts "Got wolf key: #{ENV['WOLF_KEY']}"
       else
         puts "No more wolfies jumping on the bed."
+        return false
       end
     end
     #vars = ["DEN_ADDR", "WOLF_KEY"]
@@ -65,6 +68,7 @@ class Wolf
     #    exit
     #  end
     #end
+    return true
   end
 
   def check_in

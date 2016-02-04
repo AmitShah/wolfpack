@@ -30,6 +30,17 @@ class WolvesController < ApplicationController
       wolf_key = SecureRandom.hex(16)
       Wolf.create(instance_id: ins.id, ip_address: ins.public_ip_address, key: wolf_key)
     end
+    # update ip_addresses
+    @wolves = Wolf.where(ip_address: nil)
+    @wolves.each do |w|
+      ip_address = w.ip_address
+      while(ip_address.blank?)
+        ip_address = resource.instance(w.instance_id).public_ip_address
+      end
+      w.ip_address = ip_address
+      w.save
+    end
+
     redirect_to wolves_path
   end
 
