@@ -18,9 +18,9 @@ class Wolf
 
     instance_check
 
-    #while(health_check == false)
-      #sleep(1)
-    #end
+    while(health_check == false)
+      sleep(1)
+    end
 
     while @agent.nil?
       load_agent("reddit")
@@ -29,9 +29,9 @@ class Wolf
 
     start_driver
     become_agent
-    #while(true)
-    #  lurk
-    #end
+    while(true)
+      lurk
+    end
   end
 
   def instance_check
@@ -328,4 +328,3 @@ class Wolf
 end
 
 @wolf = Wolf.new
-@wolf.make_contact("https://www.reddit.com/message/compose/?to=ctwiz")
