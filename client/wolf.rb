@@ -1,5 +1,5 @@
 require 'selenium-webdriver'
-require 'JSON'
+require 'json'
 require 'SecureRandom'
 require "net/http"
 require "uri"
