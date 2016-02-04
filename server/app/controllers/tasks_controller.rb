@@ -23,4 +23,14 @@ class TasksController < ApplicationController
     Task.destroy(params[:id])
     redirect_to tasks_path
   end
+
+  def close_ticket
+    @task = Task.find(params[:task_id])
+    @wolf = Wolf.find_by(ip_address: request.remote_ip)
+    @agent = Agent.find(params[:agent_id])
+    @ticket = Ticket.find_by(:task_id => @task_id, wolf_id: @wolf.id, agent_id: @agent.id)
+    @ticket.finished_at = Time.now
+    @ticket.save
+    render json: @ticket
+  end
 end

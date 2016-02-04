@@ -89,6 +89,8 @@ class Wolf
     # medium, target, action, param
     # reddit, url, vote
     self.send(@task["action"], @task["target"])
+    uri = URI.parse(ENV["DEN_ADDR"]+'/task/'+@task["id"]+'/close_ticket')
+    response = Net::HTTP.post_form(uri, {"agent_id", @agent["id"]})
   end
 
   def start_driver

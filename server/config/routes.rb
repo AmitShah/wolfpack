@@ -30,6 +30,7 @@ Rails.application.routes.draw do
   end
 
   resources :tasks do
+    post '/close_ticket', to: "tasks#close_ticket"
   end
 
   resources :tickets do
