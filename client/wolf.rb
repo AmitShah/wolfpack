@@ -51,11 +51,12 @@ class Wolf
       response = Net::HTTP.get(uri)
       wolf_res = JSON.parse(response)
       if wolf_res.has_key?("key")
+        puts wolf_res
         ENV['WOLF_KEY'] = wolf_res["key"]
+        puts "Got wolf key: #{ENV['WOLF_KEY']}"
       else
         puts "No more wolfies jumping on the bed."
       end
-      puts "Got wolf key: #{ENV['WOLF_KEY']}"
     end
     #vars = ["DEN_ADDR", "WOLF_KEY"]
     #vars.each do |var|
