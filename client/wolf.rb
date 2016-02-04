@@ -98,7 +98,7 @@ class Wolf
     element = @driver.find_element :name => "subject"
     element.send_keys "Contact"
     element = @driver.find_element :name => "text"
-    element.send_keys "This is agent #{@agent.username}, making contact."
+    element.send_keys "This is agent #{@agent['username']}, making contact."
     element.submit
   end
 
