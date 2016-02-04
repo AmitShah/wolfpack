@@ -1,3 +1,4 @@
 source 'https://rubygems.org'
 gem 'selenium-webdriver', '~> 2.49'
 gem 'json'
+gem 'headless'
