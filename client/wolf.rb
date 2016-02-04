@@ -1,6 +1,6 @@
 require 'selenium-webdriver'
 require 'json'
-require 'SecureRandom'
+require 'securerandom'
 require "net/http"
 require "uri"
 # move reddit concerns here
