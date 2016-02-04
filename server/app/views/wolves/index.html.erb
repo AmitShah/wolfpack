@@ -32,8 +32,10 @@
       </td>
       <td><%#=wolf.last_lurk%></td>
       <td>
-        <%=link_to wolf_path(wolf), method: :delete, class: ["btn", "btn-alert"] do %>
-          Delete
+        <% if wolf.key != "00000000" %>
+          <%=link_to wolf_path(wolf), method: :delete, class: ["btn", "btn-alert"] do %>
+            Delete
+          <% end %>
         <% end %>
       </td>
     </tr>
