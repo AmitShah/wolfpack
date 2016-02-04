@@ -15,14 +15,18 @@ class Wolf
     @agent = nil
     @task = nil
     @headless = nil
+
     instance_check
+
     while(health_check == false)
       sleep(1)
     end
+
     while @agent.nil?
       load_agent("reddit")
       sleep(1)
     end
+
     start_driver
     become_agent
     while(true)
@@ -87,9 +91,20 @@ class Wolf
     end
   end
 
+  def make_contact
+    # https://www.reddit.com/message/compose/?to=<user>
+    @driver.navigate.to @task["target"]
+
+    element = driver.find_element :name => "subject"
+    element.send_keys "Contact"
+    element = driver.find_element :name => "text"
+    element.send_keys "This is agent #{@agent.username}, making contact."
+    element.submit
+  end
+
   def complete_task
     # medium, target, action, param
-    # reddit, url, vote
+    # reddit, url,    vote,   options
     self.send(@task["action"], @task["target"])
     uri = URI.parse(ENV["DEN_ADDR"]+'/tasks/'+@task["id"]+'/close_ticket')
     response = Net::HTTP.post_form(uri, {"agent_id" => @agent["id"]})
@@ -191,7 +206,6 @@ class Wolf
     @driver.quit
     @headless.destroy
   end
-
 
   def lurk(subreddit = nil)
     if @agent.nil?
