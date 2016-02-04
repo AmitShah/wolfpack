@@ -95,9 +95,9 @@ class Wolf
     # https://www.reddit.com/message/compose/?to=<user>
     @driver.navigate.to target
     puts "Making contact with: "+target
-    element = driver.find_element :name => "subject"
+    element = @driver.find_element :name => "subject"
     element.send_keys "Contact"
-    element = driver.find_element :name => "text"
+    element = @driver.find_element :name => "text"
     element.send_keys "This is agent #{@agent.username}, making contact."
     element.submit
   end
