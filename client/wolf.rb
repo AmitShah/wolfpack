@@ -91,10 +91,10 @@ class Wolf
     end
   end
 
-  def make_contact
+  def make_contact(target)
     # https://www.reddit.com/message/compose/?to=<user>
-    @driver.navigate.to @task["target"]
-
+    @driver.navigate.to target
+    puts "Making contact with: "+target
     element = driver.find_element :name => "subject"
     element.send_keys "Contact"
     element = driver.find_element :name => "text"
