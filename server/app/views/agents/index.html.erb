@@ -4,13 +4,20 @@
     <td>Medium</td>
     <td>Account</td>
     <td>Cookie</td>
-    <td>Last used</td>
+    <td>Wolf</td>
+    <td></td>
+    
   </tr>
   <% @agents.each do |agent| %>
     <tr>
       <td><%=agent.agent_type%></td>
       <td><%=agent.username %></td>
       <td><%=agent.cookie[0..15] %></td>
+      <td>
+        <% agent.wolves.each do |wolf| %>
+          <%=link_to wolf.id, wolf_path(wolf) %><br/>
+        <% end %>
+      </td>
       <td><% if agent.available == false %>
         <%=link_to agent_make_available_path(agent), class: ["btn", "btn-primary"] do %>Make Available<% end %>
         <% end %>

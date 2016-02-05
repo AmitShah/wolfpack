@@ -19,7 +19,7 @@ class WolvesController < ApplicationController
     client = Aws::EC2::Client.new(region: 'us-west-2')
     resource = Aws::EC2::Resource.new(client: client)
     instances = resource.create_instances(
-      :image_id => 'ami-d440a6e7',
+      :image_id => 'ami-224bad42',
       :instance_type => 't2.nano',
       :security_groups => ['WOLFPACK'],
       :key_name => 'WOLFPACK',
