@@ -56,11 +56,17 @@ class WolvesController < ApplicationController
 
   def destroy
     @wolf = Wolf.find(params[:id])
-    client = Aws::EC2::Client.new(region: 'us-west-2')
-    resource = Aws::EC2::Resource.new(client: client)
-    instance = resource.instance(@wolf.instance_id)
-    instance.terminate
+    begin
+      client = Aws::EC2::Client.new(region: 'us-west-2')
+      resource = Aws::EC2::Resource.new(client: client)
+      instance = resource.instance(@wolf.instance_id)
+      instance.terminate
+    rescue => e
+      # message telling me to check everything out
+    end
     Wolf.destroy(@wolf.id)
+    # now kill off agent associations
+    AgentToWolf.destroy_all(wolf_id: @wolf.id)
     redirect_to wolves_path
   end
 end
